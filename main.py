@@ -23,7 +23,10 @@ class Dish:
     def __repr__(self):
         return ( f"Dish({self.name}, properties={{weight={self.weight}, "
             f"current_weight={self.current_weight}, "
-            f"variants={repr(self.variants)}, {**self.features}}})")
+            "variants={variants}, {rest}})".format(
+                variants=repr(self.variants), 
+                rest=repr(self.features)[1:-2] # remove "{" and "}"
+            ))
 
     def __str__(self):
         return self.name
@@ -32,7 +35,7 @@ def _update_current_weights(dish_iterator, data):
     for dish in dish_iterator:
         dish_data = data[dish.name]
         dish.current_weight = dish_data["current_weight"] 
-        update_current_weights(dish.variants, dish_data["variants"])
+        _update_current_weights(dish.variants, dish_data["variants"])
 
 def load_dishes():
     with open(DISH_CONFIG, "r") as f:
@@ -44,13 +47,13 @@ def load_dishes():
     except FileNotFoundError:
         pass
     else:
-        update_current_weights(result, current_weights)
+        _update_current_weights(result, current_weights)
         
 def _current_weights(dish_iterator):
     return {
         dish.name: {
             "current_weight": dish.current_weight, 
-            "variants": current_weights(dish.variants)
+            "variants": _current_weights(dish.variants)
         }
         for dish in dish_iterator
     }
@@ -58,17 +61,31 @@ def _current_weights(dish_iterator):
 
 def cache_current_weights(dish_iterator):
     with open(DISH_WEIGHT_CACHE, "w") as f:
-        json.dump(current_weights(dish_iterator), f)
+        json.dump(_current_weights(dish_iterator), f)
     
         
-def select_dish(menu, weight_default=0, weight_transformation=math.exp):
-    exp_weights = np.array(
-        [weight_transformation(menu[dish_name].get("weight", weight_default)) for dish_name in menu]
+def select_dish(menu, weight_transformation= lambda x: x):
+    current_weights = np.array(
+        [weight_transformation(dish.current_weight) for dish in menu]
     )
 
-    dish_name = random.choices(population=menu.keys(), weights=exp_weights)
-    if variants := menu[dish_name].get("variants"):
-        return select_dish(variants)
-    else:
-        return menu[dish_name]
+    dish = random.choices(population=menu, weights=current_weights)
 
+    result = [dish]
+    result.extend(select_dish(dish.variants))
+
+    # redistribute weight to other dishes
+    weights = np.array([dish.weight for dish in menu])
+    normalized_weights = weights / weights.sum()
+    weight_update = dish.current_weight * normalized_weights
+
+    dish.current_weight = 0
+    for dish, update in zip(menu, weight_update):
+        dish.current_weight += update
+
+    cache_current_weights(menu)
+
+
+
+if __name__ == "__main__":
+    pass
