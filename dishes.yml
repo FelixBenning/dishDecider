@@ -1,0 +1,29 @@
+lasagne:
+  weight: 1
+  variants:
+    spinat:
+      weight: 1
+    kürbis:
+      weight: 1
+
+risotto:
+  weight: 1
+  variants:
+    spinat:
+      weight: 1
+    kürbis:
+      weight: 1
+
+curry:
+  weight: 2
+  variants:
+    japanese:
+      weight: 1
+    thai:
+      weight: 1
+
+dampfnudeln:
+  weight: 1
+
+pizza:
+  weight: 3

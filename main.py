@@ -14,7 +14,7 @@ class Dish:
         self.name = name
         self.weight = properties["weight"]
         self.current_weight = properties.get("current_weight", self.weight)
-        self.variants = [Dish(name, prop) for name, prop in properties.get("variants", {})]
+        self.variants = [Dish(name, prop) for name, prop in properties.get("variants", {}).items()]
         self.features = {
             name: value for name, value in properties.items() 
             if name not in ["weight", "current_weight", "variants"]
@@ -23,10 +23,8 @@ class Dish:
     def __repr__(self):
         return ( f"Dish({self.name}, properties={{weight={self.weight}, "
             f"current_weight={self.current_weight}, "
-            "variants={variants}, {rest}})".format(
-                variants=repr(self.variants), 
-                rest=repr(self.features)[1:-2] # remove "{" and "}"
-            ))
+            f"variants={repr(self.variants)}, {repr(self.features)[1:-2]}}})"
+        )
 
     def __str__(self):
         return self.name
@@ -48,6 +46,7 @@ def load_dishes():
         pass
     else:
         _update_current_weights(result, current_weights)
+    return result
         
 def _current_weights(dish_iterator):
     return {
@@ -64,15 +63,17 @@ def cache_current_weights(dish_iterator):
         json.dump(_current_weights(dish_iterator), f)
     
         
-def select_dish(menu, weight_transformation= lambda x: x):
+def select_dish_chain(menu, weight_transformation= lambda x: x):
+    if not menu:
+        return []
     current_weights = np.array(
         [weight_transformation(dish.current_weight) for dish in menu]
     )
 
-    dish = random.choices(population=menu, weights=current_weights)
+    dish = random.choices(population=menu, weights=current_weights)[0]
 
     result = [dish]
-    result.extend(select_dish(dish.variants))
+    result.extend(select_dish_chain(dish.variants))
 
     # redistribute weight to other dishes
     weights = np.array([dish.weight for dish in menu])
@@ -85,7 +86,20 @@ def select_dish(menu, weight_transformation= lambda x: x):
 
     cache_current_weights(menu)
 
+    return result
+
+
+def select_dish(menu):
+    menu_chain = select_dish_chain(menu)
+    
+    # print result
+    print("on the menu today:")
+    for idx, dish in enumerate(menu_chain):
+        print(idx*"  " + "-> " + dish.name)
 
 
 if __name__ == "__main__":
+    menu = load_dishes()
+    repr(menu[0])
+    select_dish(menu)
     pass
