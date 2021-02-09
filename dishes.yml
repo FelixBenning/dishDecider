@@ -1,29 +1,81 @@
-lasagne:
-  weight: 1
-  variants:
-    spinat:
-      weight: 1
-    kürbis:
-      weight: 1
-
-risotto:
-  weight: 1
-  variants:
-    spinat:
-      weight: 1
-    kürbis:
-      weight: 1
-
 curry:
   weight: 2
   variants:
-    japanese:
-      weight: 1
     thai:
       weight: 1
+    japanese:
+      weight: 1
 
-dampfnudeln:
+risotto:
+  weight: 2
+  variants:
+    pumpkin:
+      weight: 1
+    spinach:
+      weight: 1
+
+soup:
+  weight: 3
+  variants:
+    tomato:
+      weight: 1
+    pumpkin:
+      weight: 1
+    potato soup (+ Kracherla):
+      weight: 2
+    daal:
+      weight: 1
+    flädla:
+      weight: 1
+
+pasta:
+  weight: 1
+  variants:
+    spinach:
+      weight: 1
+
+lasagne:
+  weight: 2
+  variants:
+    pumpkin:
+      weight: 1
+    spinach:
+      weight: 1
+    normal:
+      weight: 1
+
+wraps:
   weight: 1
 
-pizza:
+
+kartoffelgulasch:
+  weight: 1
+
+potatos:
   weight: 3
+  variants:
+    kartoffelpueree:
+      weight: 1
+    bratkartoffeln:
+      weight: 1
+    ofenkartoffeln:
+      weight: 1
+    pommes:
+      weight: 1
+    kartoffelpuffer:
+      weight: 1
+
+      
+pizza:
+  weight: 2
+
+sweet-dough:
+  weight: 2
+  variants:
+    kratzede:
+      weight: 1
+    pfannkuchen:
+      weight: 1
+    dampfnudeln:
+      weight: 1
+
