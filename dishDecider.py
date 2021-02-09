@@ -89,7 +89,8 @@ def select_dish_chain(menu, weight_transformation= lambda x: x):
     return result
 
 
-def select_dish(menu):
+def print_select_dish():
+    menu = load_dishes()
     menu_chain = select_dish_chain(menu)
     
     # print result
