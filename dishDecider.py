@@ -63,28 +63,29 @@ def cache_current_weights(dish_iterator):
         json.dump(_current_weights(dish_iterator), f)
     
         
-def select_dish_chain(menu, weight_transformation= lambda x: x):
+def select_dish_chain(menu):
     if not menu:
         return []
-    current_weights = np.array(
-        [weight_transformation(dish.current_weight) for dish in menu]
-    )
+    current_weights = np.array([dish.current_weight for dish in menu])
 
-    dish = random.choices(population=menu, weights=current_weights)[0]
+    chosen_dish = random.choices(population=menu, weights=current_weights)[0]
 
-    result = [dish]
-    result.extend(select_dish_chain(dish.variants))
+    result = [chosen_dish]
+    result.extend(select_dish_chain(chosen_dish.variants))
 
-    # redistribute weight to other dishes
-    weights = np.array([dish.weight for dish in menu])
-    normalized_weights = weights / weights.sum()
-    weight_update = dish.current_weight * normalized_weights
+    if len(menu) > 1:
+        # redistribute weight to other dishes
+        weights = np.array([dish.weight for dish in menu])
+        remaining_weights = weights.sum() - chosen_dish.weight
+        normalized_weights = weights / remaining_weights 
 
-    dish.current_weight = 0
-    for dish, update in zip(menu, weight_update):
-        dish.current_weight += update
+        weight_update = chosen_dish.current_weight * normalized_weights
 
-    cache_current_weights(menu)
+        for dish, update in zip(menu, weight_update):
+            dish.current_weight += update
+        chosen_dish.current_weight = 0
+
+        cache_current_weights(menu)
 
     return result
 
